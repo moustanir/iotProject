@@ -18,10 +18,6 @@ struct SignalReveil{
 	struct Reveil rev;
 };
 
-//Valeur Signaux
-#define revNew 1
-#define revUp  2
-
 static struct Reveil *tabReveil;
 //Prototypes fonctions
 
