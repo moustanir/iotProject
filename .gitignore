@@ -1,7 +1,8 @@
  ###
 # Prerequisites
 *.d
-
+serveur
+client
 # Object files
 *.o
 *.ko
