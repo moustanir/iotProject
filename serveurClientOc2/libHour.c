@@ -94,7 +94,7 @@ void scanHourToWake(int sock,char *nom)
 		printf("Echec de l'envoi du signal\n");
 		exit(5);
 	}else{
-		if(write(sock,(void*)&,sizeof(nom)) == -1){
+		if(write(sock,(void*)&rev,sizeof(nom)) == -1){
 			printf("Echec de l'envoi du nom\n");
 			exit(6);
 		}else{
