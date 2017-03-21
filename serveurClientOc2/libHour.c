@@ -79,17 +79,18 @@ int reveil(int nsock,int sock,char valueChoice) //Reçoit l'ensemble des valeurs
 //Demande à l'utilisateur l'heure à laquelle il souhaite être réveillé
 void scanHourToWake(int sock,char *nom)
 {
-	char remplir[5];
+	char remplir[6];
 	char value = '1';
 	printf("Entrez l'heure a laquelle vous souhaitez etre reveille:(Format:HH:MM inutile de preciser les 0 valeurs inferieures a 10)\n\0 ");
 	fgets(remplir,5,stdin);
 	fgets(remplir,5,stdin);
+	remplir[6] = '\0';
 	printf("Preparation de l'envoi\n");
 	printf("Vous souhaitez donc %s, etre reveille a %s \n",nom,remplir);
 	struct Reveil rev;
 	rev.nom = nom;
 	rev.heure_reveil = remplir;
-	printf("La taille de la structure est %d",sizeof(rev));
+	printf("La taille de la structure est %d\n",sizeof(rev));
 	if(write(sock,(void*)&value,sizeof(value)) == -1){
 		printf("Echec de l'envoi du signal\n");
 		exit(5);
@@ -98,7 +99,7 @@ void scanHourToWake(int sock,char *nom)
 			printf("Echec de l'envoi du nom\n");
 			exit(6);
 		}else{
-				printf("Message envoyé\n");
+			printf("Message envoyé\n");
 		}
 	}
 }
@@ -115,4 +116,97 @@ void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int soc
 			tabReveil[index].heure_reveil = hourUpdated.heure_reveil;
 		}
 	}
+}
+
+void cleanZomb(int S){
+	wait(NULL);
+}
+
+
+
+void initServer(int sock,int ln,struct sockaddr_in Sin){
+	//On supprime d'abord l'ensemble des processus zombie.
+	signal(SIGCHLD,cleanZomb);
+
+	//			//Création de la socket
+	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
+		//On arrête le programme dans le cas où la socket n'a pu être créée.
+		perror("socket");
+		exit(1);
+	}
+	//On attache la socket au port voulu
+	if(bind(sock,(struct sockaddr*)&Sin,sizeof(Sin))<0){
+		//On arrête le programme dans le cas où la socket n'a pu se lier à un port.
+		perror("bind");
+		exit(2);
+	}
+	ln = sizeof(Sin);
+	int sockName;
+	//On retourne le nom de la socket.
+	if( sockName = getsockname(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln) < 0){
+
+		//On arrête le programme dans le cas où le programme n'a pu récupérer le nom de la socket
+		perror("getsockname");
+		exit(3);
+	}
+	printf("Le serveur est attache au port %u\n",ntohs(Sin.sin_port));
+	checkHour();
+	//Définition du nombre d'appels simultanés autorisés
+	if(listen(sock,5) < 0){
+		perror("listen");
+		exit(4);
+	}
+}
+
+void serverWait(int sock,int nsock,int pid,struct sockaddr_in Sin,int ln){
+	char tab[100];
+	for(;;){
+		if((nsock=accept(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln))<0){
+			perror("accept");
+			exit(5);
+		}
+		if((pid=fork())== -1){
+			perror("fork");
+			exit(6);
+		}
+		if(pid == 0){
+			printf("Reception message\n");
+			char valueChosen = '3';
+			read(nsock,&valueChosen,sizeof(valueChosen));
+			printf("Valeur reçue: %s\n",valueChosen);
+			reveil(nsock,sock,valueChosen);
+		}
+		close(nsock);
+	}
+
+}
+
+void checkLengthName(char *nom)
+{
+
+}
+
+void initClient(int sock,struct sockaddr_in sin,struct hostent *h){
+//Initialisation socket
+//	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
+//			perror("socket");
+//					exit(2);
+//						}
+//							if(!(h=gethostbyname(P[1]))){
+//									perror("gethostbyname");
+//											exit(3);
+//												}
+//
+//													//Initialisation de sin
+//														bzero(&sin,sizeof(sin));
+//															sin.sin_family = AF_INET;
+//																bcopy(h->h_addr,&sin.sin_addr,h->h_length);
+//																	sin.sin_port = htons(atoi(P[2]));
+//																		//Tentative de connexion à la socket distante
+//																			if(connect(sock,(struct sockaddr*)&sin,sizeof(sin))<0){
+//																					printf("Connect erreur");
+//																							perror("connect");
+//																									exit(4);
+//																										}
+//																										
 }
