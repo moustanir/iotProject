@@ -43,8 +43,8 @@ void deleteHour(struct Reveil *tabReveil,char *hourToDelete) //Supprime le réve
 	//On déterminer le nombre de case que compose notre tableau de réveuk
 	int sizeTab = sizeof(tabReveil) / sizeof(struct Reveil);
 	for(index = 0;index <sizeTab;index++){
-		if(tabReveil[index].heure_reveil == hourToDelete){
-			tabReveil[index].heure_reveil = "null";
+		if(tabReveil[index].hour == hourToDelete){
+			tabReveil[index].hour = "null";
 			tabReveil[index].nom = "null";
 		}
 	}
@@ -122,7 +122,6 @@ void scanHourToWake(int sock,char *nom)
 	}
 }
 
-
 void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int sock)//Modifie l'heure de réveil de l'utilisateur
 {
 	int index;
@@ -131,7 +130,7 @@ void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int soc
 	for(index = 0;index <sizeTab;index++){
 		//Dans le cas où le nom correspond
 		if(tabReveil[index].nom == hourUpdated.nom){
-			tabReveil[index].heure_reveil = hourUpdated.heure_reveil;
+			tabReveil[index].hour = hourUpdated.hour;
 		}
 	}
 }
@@ -144,26 +143,4 @@ int checkLengthName(char *nom)
 		exit(1);
 	}
 	return strlen(nom);
-}
-
-void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,char *port){
-	//Initialisation socket
-	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
-		perror("socket");
-		exit(2);
-	}
-	if(!(h=gethostbyname(ip))){
-		perror("gethostbyname");
-		exit(3);
-	}
-	//Initialisation de sin
-	bzero(&sin,sizeof(sin));
-	sin.sin_family = AF_INET;
-	bcopy(h->h_addr,&sin.sin_addr,h->h_length);
-	sin.sin_port = htons(atoi(port));
-	//Tentative de connexion à la socket distante
-	if(connect(sock,(struct sockaddr*)&sin,sizeof(sin))<0){
-		perror("connect");
-		exit(4);
-	}
 }

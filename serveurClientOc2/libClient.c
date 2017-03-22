@@ -100,12 +100,19 @@ char** str_split(char* a_str, const char a_delim)
 
 
 
-struct Reveil serialisation(char nom[]){
-	struct Reveil rev;
-	char *noms;
-	char **valueFound;
+struct Reveil deserialisation(char* nom){
+	struct Reveil result;
+	char** valueFound;
 	valueFound = str_split(nom,'-');
-	rev.nom = valueFound[2];
-	rev.hour = valueFound[3];
-	return rev;
+	result.nom = valueFound[1];
+	result.hour = valueFound[2];
+	return result;
+}
+
+
+char* serialisation(struct Reveil rev){
+	char *result = "1-";
+	result = strcat(result,rev.nom);
+	result = strcat(result,rev.hour);
+	return result;
 }

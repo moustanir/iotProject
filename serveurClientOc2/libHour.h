@@ -9,10 +9,10 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
+#include "libCommon.h"
 
 static struct Reveil *tabReveil;
 //Prototypes fonctions
-
 
 void checkConnected(); //Verifie si les utilisateurs sont toujours connectés au serveur
 char* checkHour(); //Affiche l'heure
