@@ -96,7 +96,6 @@ void scanHourToWake(int sock,char *nom)
 	char remplir[6];
 	printf("Entrez l'heure a laquelle vous souhaitez etre reveille:\n(Format:HH:MM inutile de preciser les 0 pour les valeurs inferieures a 10)\n\0 ");
 	scanf("%s",&remplir);
-	remplir[5] = "\0";
 	printf("Vous souhaitez donc %s, etre reveille a %s \n",nom,remplir);
 	printf("Preparation de l'envoi\n");
 	/*On concatene les données reçus */
@@ -137,73 +136,6 @@ void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int soc
 	}
 }
 
-void cleanZomb(int S){
-	wait(NULL);
-}
-
-int initServer(int sock,int ln,struct sockaddr_in Sin){
-	//On supprime d'abord l'ensemble des processus zombie.
-	signal(SIGCHLD,cleanZomb);
-	//Création de la socket
-		printf("a\n");
-	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
-		//On arrête le programme dans le cas où la socket n'a pu être créée.
-		perror("socket");
-		exit(74);
-	}
-		printf("b\n");
-	//On attache la socket au port voulu
-	if(bind(sock,(struct sockaddr*)&Sin,sizeof(Sin))<0){
-		//On arrête le programme dans le cas où la socket n'a pu se lier à un port.
-		perror("bind");
-		exit(2);
-	}
-		printf("c\n");
-	ln = sizeof(Sin);
-	int sockName;
-	//On retourne le nom de la socket.
-	if( sockName = getsockname(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln) < 0){
-		//On arrête le programme dans le cas où le programme n'a pu récupérer le nom de la socket
-		perror("getsockname");
-		exit(3);
-	}
-		printf("d\n");
-	printf("Le serveur est attache au port %u\n",ntohs(Sin.sin_port));
-	//checkHour();
-	//Définition du nombre d'appels simultanés autorisés
-	if(listen(sock,5) < 0){
-		perror("listen");
-		exit(4);
-	}
-
-	printf("e\n");	
-	return sock;	
-}
-
-void serverWait(int sock,int nsock,int pid,struct sockaddr_in Sin,int ln){
-	sock = initServer(sock,ln,Sin);
-	printf("f\n");
-	for(;;){
-		printf("g\n");
-		if((nsock=accept(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln))<0){
-			perror("accept");
-			exit(5);
-		}
-		printf("h\n");
-		if((pid=fork())== -1){
-			perror("fork");
-			exit(6);
-		}
-		printf("i\n");
-		if(pid == 0){
-			char valueChosen = getCapsuleValue(nsock);
-			printf("Valeur reçue: %s\n",valueChosen);
-			reveil(nsock,sock,valueChosen);
-		}
-		printf("j\n");
-		close(nsock);
-	}
-}
 
 int checkLengthName(char *nom)
 {
