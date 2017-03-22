@@ -75,7 +75,8 @@ int reveil(int nsock,int sock,char valueChoice) //Reçoit l'ensemble des valeurs
 			close(nsock);
 			break;
 		default:
-			checkHour();
+			//checkHour();
+			printf("Affichage heure");
 			close(nsock);
 			break;
 	};
@@ -93,20 +94,28 @@ char getCapsuleValue(int sock) //Fonction permettant de récupérer
 void scanHourToWake(int sock,char *nom)
 {
 	char remplir[6];
-	char value = '1';
-	printf("Entrez l'heure a laquelle vous souhaitez etre reveille:(Format:HH:MM inutile de preciser les 0 valeurs inferieures a 10)\n\0 ");
-	fgets(remplir,5,stdin);
-	fgets(remplir,5,stdin);
-	remplir[6] = '\0';
-
+	printf("Entrez l'heure a laquelle vous souhaitez etre reveille:\n(Format:HH:MM inutile de preciser les 0 pour les valeurs inferieures a 10)\n\0 ");
+	scanf("%s",&remplir);
+	remplir[5] = "\0";
 	printf("Vous souhaitez donc %s, etre reveille a %s \n",nom,remplir);
 	printf("Preparation de l'envoi\n");
 	/*On concatene les données reçus */
-	char *capsule = "1-";
-	capsule = strcat(capsule,nom);
-	capsule = strcat(capsule,"-");
-	capsule = strcat(capsule,remplir);
-	if(write(sock,(void*)&capsule,sizeof(capsule)) == -1){
+	char *capsule,*firstpart,*secpart; 
+	char *debut= "1-";
+	char *milieu = "-";
+	printf("%s\n",debut);
+	printf("%s\n",milieu);
+	printf("n\n");
+	firstpart = strcat(debut,nom);
+	printf("%s",firstpart);
+	printf("o\n");
+	secpart = strcat(firstpart,milieu);
+	printf("%s",secpart);
+	printf("p\n");
+	capsule = strcat(secpart,remplir);
+	printf("q\n");
+	printf("%s",capsule);
+	if(write(sock,(void*)&capsule,100) == -1){
 		printf("Echec de l'envoi du signal\n");
 		exit(5);
 	}else{
