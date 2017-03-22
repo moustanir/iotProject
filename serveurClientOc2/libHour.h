@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
@@ -13,6 +15,7 @@ struct Reveil{
 	char *heure_reveil;
 };
 static struct Reveil *tabReveil;
+static struct sockaddr_in Sin = {AF_INET};
 //Prototypes fonctions
 
 
@@ -26,8 +29,8 @@ void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int soc
 int reveil(int nsock,int sock,char valueChoice); //Reçoit un signal et redirige les données vers le bon signal
 void cleanZomb(int S);
 //Pour initialiser le serveur
-void initServer(int sock,int ln,struct sockaddr_in Sin);
+int initServer(int sock,int ln,struct sockaddr_in Sin);
 void serverWait(int sock,int nsock,int pid,struct sockaddr_in Sin,int ln);
 //Pour initialiser le client
 int checkLengthName(char *nom);
-void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,int port);
+void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,char  *port);

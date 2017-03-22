@@ -12,6 +12,7 @@ char* checkHour(){
 	sprintf(min,"%d",tm.tm_min);
 	tps=strcat(hour,":");
 	tps=strcat(tps,min);
+	printf("Il est %s",tps);
 	return tps;
 
 }
@@ -25,6 +26,8 @@ void insertHourWake(struct Reveil *tabReveil,int sock) // Insert la nouvelle heu
 {
 	char *newNom,*newHour;
 	struct Reveil rev;
+	read(sock,(void*)&newNom,100);
+	printf("Valeur reçue %s\n",newNom);
 	//On récupère les informations envoyés par les sockets
 	printf("%s souhaite etre reveille a %s",newNom,newHour);
 	//On déterminer le nombre de case que compose notre tableau de réveuk
@@ -46,6 +49,7 @@ void deleteHour(struct Reveil *tabReveil,char *hourToDelete) //Supprime le réve
 		}
 	}
 }
+
 
 //Reception message (pour le test des sockets)
 void receiveMessage(int nsock,char *tab){
@@ -78,6 +82,13 @@ int reveil(int nsock,int sock,char valueChoice) //Reçoit l'ensemble des valeurs
 	return 0;
 }
 
+char getCapsuleValue(int sock) //Fonction permettant de récupérer 
+{
+	char *tab;
+	read(sock,(void*)&tab,100);
+	return tab[0];	
+}
+
 //Demande à l'utilisateur l'heure à laquelle il souhaite être réveillé
 void scanHourToWake(int sock,char *nom)
 {
@@ -87,13 +98,19 @@ void scanHourToWake(int sock,char *nom)
 	fgets(remplir,5,stdin);
 	fgets(remplir,5,stdin);
 	remplir[6] = '\0';
-	printf("Preparation de l'envoi\n");
+
 	printf("Vous souhaitez donc %s, etre reveille a %s \n",nom,remplir);
-	if(write(sock,(void*)&value,sizeof(value)) == -1){
+	printf("Preparation de l'envoi\n");
+	/*On concatene les données reçus */
+	char *capsule = "1-";
+	capsule = strcat(capsule,nom);
+	capsule = strcat(capsule,"-");
+	capsule = strcat(capsule,remplir);
+	if(write(sock,(void*)&capsule,sizeof(capsule)) == -1){
 		printf("Echec de l'envoi du signal\n");
 		exit(5);
 	}else{
-			printf("Message envoyé\n");
+		printf("Message envoyé\n");
 	}
 }
 
@@ -115,73 +132,80 @@ void cleanZomb(int S){
 	wait(NULL);
 }
 
-void initServer(int sock,int ln,struct sockaddr_in Sin){
+int initServer(int sock,int ln,struct sockaddr_in Sin){
 	//On supprime d'abord l'ensemble des processus zombie.
 	signal(SIGCHLD,cleanZomb);
-
-	//			//Création de la socket
+	//Création de la socket
+		printf("a\n");
 	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
 		//On arrête le programme dans le cas où la socket n'a pu être créée.
 		perror("socket");
-		exit(1);
+		exit(74);
 	}
+		printf("b\n");
 	//On attache la socket au port voulu
 	if(bind(sock,(struct sockaddr*)&Sin,sizeof(Sin))<0){
 		//On arrête le programme dans le cas où la socket n'a pu se lier à un port.
 		perror("bind");
 		exit(2);
 	}
+		printf("c\n");
 	ln = sizeof(Sin);
 	int sockName;
 	//On retourne le nom de la socket.
 	if( sockName = getsockname(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln) < 0){
-
 		//On arrête le programme dans le cas où le programme n'a pu récupérer le nom de la socket
 		perror("getsockname");
 		exit(3);
 	}
+		printf("d\n");
 	printf("Le serveur est attache au port %u\n",ntohs(Sin.sin_port));
-	checkHour();
+	//checkHour();
 	//Définition du nombre d'appels simultanés autorisés
 	if(listen(sock,5) < 0){
 		perror("listen");
 		exit(4);
 	}
+
+	printf("e\n");	
+	return sock;	
 }
 
 void serverWait(int sock,int nsock,int pid,struct sockaddr_in Sin,int ln){
-	char tab[100];
+	sock = initServer(sock,ln,Sin);
+	printf("f\n");
 	for(;;){
+		printf("g\n");
 		if((nsock=accept(sock,(struct sockaddr*)&Sin,(socklen_t*)&ln))<0){
 			perror("accept");
 			exit(5);
 		}
+		printf("h\n");
 		if((pid=fork())== -1){
 			perror("fork");
 			exit(6);
 		}
+		printf("i\n");
 		if(pid == 0){
-			printf("Reception message\n");
-			char valueChosen = '3';
-			read(nsock,&valueChosen,sizeof(valueChosen));
+			char valueChosen = getCapsuleValue(nsock);
 			printf("Valeur reçue: %s\n",valueChosen);
 			reveil(nsock,sock,valueChosen);
 		}
+		printf("j\n");
 		close(nsock);
 	}
-
 }
 
 int checkLengthName(char *nom)
 {
-		if(strlen(nom) > 10){
-			fprintf(stderr,"Utilisation: ./client nom_serveur port pseudo ");
-			exit(1);
-		}
-		return strlen(nom);
+	if(strlen(nom) > 10){
+		fprintf(stderr,"Utilisation: ./client nom_serveur port pseudo ");
+		exit(1);
+	}
+	return strlen(nom);
 }
 
-void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,int port){
+void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,char *port){
 	//Initialisation socket
 	if((sock=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))<0){
 		perror("socket");
@@ -191,7 +215,6 @@ void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,int p
 		perror("gethostbyname");
 		exit(3);
 	}
-
 	//Initialisation de sin
 	bzero(&sin,sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -202,5 +225,4 @@ void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,int p
 		perror("connect");
 		exit(4);
 	}
-
 }
