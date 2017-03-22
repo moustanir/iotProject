@@ -12,18 +12,12 @@ struct Reveil{
 	char *nom;
 	char *heure_reveil;
 };
-
-struct SignalReveil{
-	int val;
-	struct Reveil rev;
-};
-
 static struct Reveil *tabReveil;
 //Prototypes fonctions
 
 
 void checkConnected(); //Verifie si les utilisateurs sont toujours connectés au serveur
-void checkHour(); //Affiche l'heure
+char* checkHour(); //Affiche l'heure
 void deleteHour(struct Reveil *tabReveil,char *hourToDelete);//Supprime le réveil une fois passé
 void insertHourWake(struct Reveil *tabReveil,int sock);// Insert la nouvelle heure du réveil dans la liste
 void receiveMessage(int nsock,char *tab);//Reçoit les messages
@@ -35,5 +29,5 @@ void cleanZomb(int S);
 void initServer(int sock,int ln,struct sockaddr_in Sin);
 void serverWait(int sock,int nsock,int pid,struct sockaddr_in Sin,int ln);
 //Pour initialiser le client
-void checkLengthName(char *nom);
-void initClient(int sock,struct sockaddr_in sin,struct hostent *h);
+int checkLengthName(char *nom);
+void initClient(int sock,struct sockaddr_in sin,struct hostent *h,char *ip,int port);
