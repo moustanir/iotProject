@@ -6,31 +6,30 @@
  *Code pour le client
  */
 
-
-
-void interface(char *nom,int sock);
-
 int main(int N,char *P[]){
-/*  int sock;
+  int sock;
   struct sockaddr_in sin;
   struct hostent *h;
   char nom[LBUF],addr[LBUF];
-  printf("j\n");
   checkLengthName(P[3]);
-  printf("k\n");
   initClient(sock,sin,h,P[1],P[2]);
-  printf("l\n");
   interface(P[3],sock);
-  printf("m\n");
-  close(sock);*/
-	struct Reveil newReveil;
-	newReveil.nom = "toto";
-	newReveil.hour ="8:3";
-	char* string = "1-toto-8:5";
-	assert(string == serialisation(deserialisation(string)));
+  close(sock);
+ }
 
-	assert(newReveil.nom == deserialisation(serialisation(newReveil)).nom);
-	assert(newReveil.hour == deserialisation(serialisation(newReveil)).hour);
-	
+/*
+int main(int argc, char** argv) {
+	char test[] = "1-toto-8h53";
+	char* sd =  malloc (sizeof (char) * strlen("1-toto-8h53"));
+	strcpy(sd, serialisation(deserialisation(test)));
+	assert(strcmp("1-toto-8h53", sd) == 0);
 
-}
+	struct Reveil reveil;
+	reveil.nom = "toto";
+	reveil.hour ="8:3";
+	struct Reveil ds = deserialisation(serialisation(reveil));
+	assert(strcmp(reveil.nom, ds.nom) == 0);
+	assert(strcmp(reveil.hour, ds.hour) == 0);
+
+	return 0;
+}*/

@@ -19,7 +19,6 @@ char* checkHour(); //Affiche l'heure
 void deleteHour(struct Reveil *tabReveil,char *hourToDelete);//Supprime le réveil une fois passé
 void insertHourWake(struct Reveil *tabReveil,int sock);// Insert la nouvelle heure du réveil dans la liste
 void receiveMessage(int nsock,char *tab);//Reçoit les messages
-void scanHourToWake(int sock,char *nom); //Demande à l'utilisateur son heure à laquelle il se réveille
 void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int sock);//Modifie l'heure de réveil de l'utilisateur
 int reveil(int nsock,int sock,char valueChoice); //Reçoit un signal et redirige les données vers le bon signal
 //Pour initialiser le client

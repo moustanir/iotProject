@@ -24,7 +24,7 @@ void checkConnected(){
 
 void insertHourWake(struct Reveil *tabReveil,int sock) // Insert la nouvelle heure du réveil dans la listes
 {
-	char *newNom,*newHour;
+	char newNom,newHour;
 	struct Reveil rev;
 	read(sock,(void*)&newNom,100);
 	printf("Valeur reçue %s\n",newNom);
@@ -90,37 +90,6 @@ char getCapsuleValue(int sock) //Fonction permettant de récupérer
 	return tab[0];	
 }
 
-//Demande à l'utilisateur l'heure à laquelle il souhaite être réveillé
-void scanHourToWake(int sock,char *nom)
-{
-	char remplir[6];
-	printf("Entrez l'heure a laquelle vous souhaitez etre reveille:\n(Format:HH:MM inutile de preciser les 0 pour les valeurs inferieures a 10)\n\0 ");
-	scanf("%s",&remplir);
-	printf("Vous souhaitez donc %s, etre reveille a %s \n",nom,remplir);
-	printf("Preparation de l'envoi\n");
-	/*On concatene les données reçus */
-	char *capsule,*firstpart,*secpart; 
-	char *debut= "1-";
-	char *milieu = "-";
-	printf("%s\n",debut);
-	printf("%s\n",milieu);
-	printf("n\n");
-	firstpart = strcat(debut,nom);
-	printf("%s",firstpart);
-	printf("o\n");
-	secpart = strcat(firstpart,milieu);
-	printf("%s",secpart);
-	printf("p\n");
-	capsule = strcat(secpart,remplir);
-	printf("q\n");
-	printf("%s",capsule);
-	if(write(sock,(void*)&capsule,100) == -1){
-		printf("Echec de l'envoi du signal\n");
-		exit(5);
-	}else{
-		printf("Message envoyé\n");
-	}
-}
 
 void updateHourToWake(struct Reveil *tabReveil,struct Reveil hourUpdated,int sock)//Modifie l'heure de réveil de l'utilisateur
 {

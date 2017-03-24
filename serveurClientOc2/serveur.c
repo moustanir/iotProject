@@ -1,5 +1,4 @@
 #include "libServer.h"
-#include "libHour.h"
 
 int main(int N,char *P[]){
 	int ln,sock,nsock,pid;
